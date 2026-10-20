@@ -1,0 +1,72 @@
+/* Adaptations mobiles : portrait, paysage compact, écrans étroits */
+
+/* Écrans étroits */
+@media (max-width: 720px) {
+    html, body { font-size: 14px; }
+    .hide-sm { display: none !important; }
+    .menu-stat { min-width: 64px; padding: 5px 8px; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    .settings-grid { grid-template-columns: 1fr; }
+    .help-grid { grid-template-columns: 1fr; }
+    .tab-btn { padding: 9px 9px; font-size: 0.8rem; }
+}
+@media (max-width: 520px) {
+    .hide-xs { display: none !important; }
+    .hud-big { font-size: 1.1rem; }
+    .hud-score-card, .hud-stats { gap: 8px; padding: 6px 10px; }
+    .hud-row .hud-pill:nth-child(n + 2) { display: none; }
+    .mode-list { grid-template-columns: repeat(2, 1fr); }
+    .go-grid { grid-template-columns: repeat(2, 1fr); }
+    .quick-grid { grid-template-columns: repeat(3, 1fr); }
+    .tab-btn span:nth-child(2) { display: none; }          /* onglets : icônes seules */
+    .tab-btn.active span:nth-child(2) { display: inline; }
+}
+
+/* Portrait (ou fenêtre presque carrée) : le menu devient une feuille ancrée en bas, la scène 3D reste visible en haut */
+@media (max-aspect-ratio: 11/10) {
+    .screen-layer { align-items: flex-end; padding-top: calc(var(--safe-t) + 8px); }
+    .menu-panel { width: 100%; height: 66vh; height: 66dvh; max-height: 100%; margin: 0; border-radius: 22px 22px 18px 18px; }
+    body.tab-equipment .menu-panel { height: 52vh; height: 52dvh; }
+    body.tab-equipment .menu-head { padding-top: 10px; }
+    body.tab-equipment .menu-title-row { display: none; }
+    .pause-panel, .go-panel { align-self: center; }
+    .hud { flex-wrap: wrap; }
+    .hud-center { order: 3; flex-basis: 100%; }
+    .hud-stats { flex-wrap: wrap; justify-content: flex-end; }
+}
+
+/* Paysage bas (téléphone) : tout est compacté */
+@media (max-height: 520px) {
+    .screen-layer { padding: calc(var(--safe-t) + 8px) calc(var(--safe-r) + 10px) calc(var(--safe-b) + 8px) calc(var(--safe-l) + 10px); }
+    .menu-panel { width: min(600px, 58vw); }
+    .menu-head { padding: 8px 12px 0; }
+    .menu-logo { font-size: 1.6rem; }
+    .menu-title { font-size: 1.05rem; }
+    .menu-stat { padding: 3px 8px; }
+    .tabs { margin-top: 8px; }
+    .tab-btn { padding: 6px 9px; }
+    .tab-content { padding: 10px 12px; }
+    .menu-foot { padding: 8px 12px; }
+    .btn-xl { padding: 0.65rem; font-size: 0.95rem; }
+    .pause-panel, .go-panel { padding: 12px 16px; }
+    .go-icon { font-size: 2rem; }
+    .go-grid { grid-template-columns: repeat(5, 1fr); gap: 5px; }
+    .go-value { font-size: 0.9rem; }
+    .go-cell { padding: 5px; }
+    .go-reason { margin: 3px 0 6px; }
+    .pause-title { margin-bottom: 8px; font-size: 1.2rem; }
+    .hud-big { font-size: 1.05rem; }
+    .hud-score-card, .hud-stats { padding: 4px 10px; }
+    .hud-row { display: none; }
+    .touch-btn { width: clamp(70px, 26vh, 110px); height: clamp(70px, 26vh, 110px); }
+    .touch-jump { width: clamp(60px, 22vh, 90px); height: clamp(60px, 22vh, 90px); }
+    .feedback-container { top: 24%; }
+}
+
+/* Appareils tactiles : cibles plus grandes */
+body.touch .btn { min-height: 44px; }
+body.touch .tab-btn { min-height: 44px; }
+body.touch .setting input[type='range'] { height: 34px; }
+
+/* Pendant la partie : pas de sélection, pas de zoom ni de défilement accidentel */
+body[data-screen='none'], body[data-screen='pause'] { touch-action: none; }
