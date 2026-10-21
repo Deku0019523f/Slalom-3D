@@ -194,3 +194,18 @@
 .go-rewards li.good { background: rgba(52, 211, 153, 0.12); border: 1px solid rgba(52, 211, 153, 0.35); }
 .go-rewards li.muted { color: var(--muted); }
 .go-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ---------- Avatar 3D, aperçu plein écran ---------- */
+.preview-btn { margin: 8px 0 0; width: 100%; font-weight: 800; }
+.view-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.view-btn { padding: 7px 12px; border-radius: 99px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.06); font-weight: 700; font-size: 0.8rem; }
+.view-btn.active { background: rgba(56, 189, 248, 0.25); border-color: var(--sky); }
+.avatar-colors { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; margin-bottom: 10px; }
+.color-field { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.05); font-weight: 700; font-size: 0.82rem; }
+.color-field input[type='color'] { width: 38px; height: 30px; padding: 0; border: 1px solid var(--line-strong); border-radius: 8px; background: none; cursor: pointer; }
+.bib-field { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; font-weight: 700; font-size: 0.82rem; }
+.bib-field input { width: 90px; padding: 7px 9px; border-radius: 10px; border: 1px solid var(--line-strong); background: rgba(255, 255, 255, 0.08); font-weight: 800; user-select: text; -webkit-user-select: text; }
+.preview-bar { pointer-events: auto; position: absolute; left: calc(var(--safe-l) + 10px); right: calc(var(--safe-r) + 10px); bottom: calc(var(--safe-b) + 12px); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; z-index: 20; }
+.preview-bar .view-row { margin: 0; justify-content: center; padding: 6px; border-radius: 99px; background: var(--glass); border: 1px solid var(--line); }
+body.previewing .screen-layer { display: none; }
+body.tab-avatar .menu-panel { }
