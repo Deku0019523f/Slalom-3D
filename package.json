@@ -1,0 +1,12 @@
+{
+  "name": "slalom-extreme-3d",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Jeu de ski 3D dans le navigateur (Three.js, modules ES, sans backend)",
+  "type": "module",
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "start": "python3 -m http.server 8000",
+    "test": "node tests/logic.test.mjs && node tests/static.test.mjs && node tests/course.test.mjs"
+  }
+}
