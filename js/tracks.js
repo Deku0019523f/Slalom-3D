@@ -80,6 +80,7 @@ export const TRACKS = {
         obstaclesPer100m: 3.0, rockShare: 0.25, treeScale: [0.85, 1.25],
         specials: { ramps: 0.30, bumps: 0.14, deepSnow: 0.08, narrow: 0, ravine: 0, barrier: 0.10, sign: 0.14 },
         coinRate: 0.55, decorSpacing: 7.5, forestEdge: 0.5,
+        decor: { flagStep: 28, flagColors: [0xef4444,0xfacc15,0x22c55e,0x3b82f6], mounds: 5, cabin: 0.5, snowman: 0.9, logs: 0.4, birch: 1.5, spectators: 0.35, archColor: 0x22c55e },
         scoreMult: 1.0,
         reward: { finishCoins: 20, finishXp: 40 },
         ambience: WEATHER_PRESETS.sunny, stars_bg: false
@@ -96,6 +97,7 @@ export const TRACKS = {
         obstaclesPer100m: 6.0, rockShare: 0.4, treeScale: [0.85, 1.35],
         specials: { ramps: 0.42, bumps: 0.35, deepSnow: 0.22, narrow: 0.08, ravine: 0.2, barrier: 0.2, sign: 0.22 },
         coinRate: 0.6, decorSpacing: 6.0, forestEdge: 0.7,
+        decor: { flagStep: 34, flagColors: [0x3b82f6,0xef4444,0xffffff], mounds: 4, cabin: 0.4, snowman: 0.4, logs: 0.4, pylon: 0.35, birch: 1.0, spectators: 0.3, archColor: 0x3b82f6 },
         scoreMult: 1.1,
         reward: { finishCoins: 35, finishXp: 60 },
         ambience: AMBIENCE_ALPINE, stars_bg: false
@@ -112,6 +114,7 @@ export const TRACKS = {
         obstaclesPer100m: 9.0, rockShare: 0.15, treeScale: [0.9, 1.5],
         specials: { ramps: 0.14, bumps: 0.12, deepSnow: 0.2, narrow: 0.22, ravine: 0, barrier: 0.04, sign: 0.6 },
         coinRate: 0.6, decorSpacing: 3.4, forestEdge: 1.0,
+        decor: { flagStep: 0, mounds: 4, cabin: 0.5, snowman: 0.5, logs: 1.2, birch: 4, spectators: 0.1, archColor: 0x16a34a },
         scoreMult: 1.2,
         reward: { finishCoins: 45, finishXp: 75 },
         ambience: AMBIENCE_FOREST, stars_bg: false
@@ -128,6 +131,7 @@ export const TRACKS = {
         obstaclesPer100m: 11.0, rockShare: 0.45, treeScale: [0.9, 1.4],
         specials: { ramps: 0.5, bumps: 0.5, deepSnow: 0.28, narrow: 0.22, ravine: 0.32, barrier: 0.3, sign: 0.3 },
         coinRate: 0.7, decorSpacing: 5.0, forestEdge: 0.6,
+        decor: { flagStep: 40, flagColors: [0x111827,0xef4444,0xffffff], mounds: 2, spire: 3.5, pylon: 0.2, spectators: 0.05, archColor: 0xef4444 },
         scoreMult: 1.4,
         reward: { finishCoins: 70, finishXp: 100 },
         ambience: AMBIENCE_EXTREME, stars_bg: false
@@ -144,6 +148,7 @@ export const TRACKS = {
         obstaclesPer100m: 7.0, rockShare: 0.3, treeScale: [0.85, 1.35],
         specials: { ramps: 0.3, bumps: 0.25, deepSnow: 0.2, narrow: 0.12, ravine: 0.15, barrier: 0.25, sign: 0.3 },
         coinRate: 0.65, decorSpacing: 5.5, forestEdge: 0.8,
+        decor: { flagStep: 0, lanternStep: 20, lanternColors: [0xfde68a,0xf0abfc,0x7dd3fc], mounds: 4, cabin: 0.5, snowman: 0.5, pylon: 0.3, birch: 1.0, spectators: 0.3, archColor: 0xa78bfa },
         scoreMult: 1.25, lamps: true,
         reward: { finishCoins: 60, finishXp: 90 },
         ambience: WEATHER_PRESETS.night, stars_bg: true
