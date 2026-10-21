@@ -366,7 +366,7 @@ export class UI {
             case 'character': s.style.background = hex(item.skin); s.textContent = item.hair === 'fur' ? '🦣' : '🙂'; break;
             case 'outfit': s.style.background = `linear-gradient(135deg, ${hex(item.jacket)} 60%, ${hex(item.pants)} 60%)`; break;
             case 'skis': s.style.background = `linear-gradient(90deg, ${hex(item.color)} 50%, ${hex(item.color2)} 50%)`; s.textContent = '🎿'; break;
-            case 'helmet': s.style.background = hex(item.color); s.textContent = item.kind === 'beanie' ? '🧢' : item.kind === 'viking' ? '🪖' : '⛑️'; break;
+            case 'helmet': s.style.background = hex(item.color); s.textContent = item.kind === 'beanie' ? '🧶' : item.kind === 'viking' ? '🪖' : '⛑️'; break;
             default: s.textContent = item.kind === 'scarf' ? '🧣' : item.kind === 'backpack' ? '🎒' : item.kind === 'cape' ? '🦸' : '∅';
         }
         return s;
