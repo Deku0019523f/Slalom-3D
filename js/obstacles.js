@@ -496,6 +496,10 @@ export class Course {
             }
         }
 
+        // --- décor thématique (sans aucune collision). Placé en dernier : il consomme le RNG après tout le gameplay,
+        //     donc la piste (portes, obstacles, couloir) reste identique à la version sans décor.
+        this._genDecor(ch, add, ty, rng, R, bound, z0, z1);
+
         // --- lampadaires (piste nocturne)
         if (T.lamps) {
             for (let z = z0 - ((i * 7) % 4); z > z1; z -= 26) {
@@ -512,6 +516,89 @@ export class Course {
         }
 
         return ch;
+    }
+
+    /** Décor thématique : chalets, bonhommes de neige, pylônes, cristaux, bouleaux, spectateurs, fanions, arches… */
+    _genDecor(ch, add, ty, rng, R, bound, z0, z1) {
+        const T = this.track, terr = this.terrain, D = T.decor;
+        if (!D) return;
+        const dd = this.decorDensity;
+        const cxAt = (z) => terr.centerX(z);
+        const pick = (a) => a[Math.floor(rng() * a.length)];
+        const count = (v) => { const e = (v || 0) * dd; return Math.floor(e) + (rng() < e - Math.floor(e) ? 1 : 0); };
+        const put = (kind, z, s, off, extra = {}) => {
+            const x = cxAt(z) + s * (bound + off);
+            add(kind, Object.assign({ x, y: ty(x, z), z, ry: s > 0 ? Math.PI : 0, sx: 1, sy: 1, sz: 1 }, extra));
+        };
+        const SKIN = [0xf5c9a0, 0xe0a97a, 0xc68642, 0x8d5524, 0xfde0c8];
+        const JACKETS = [0xef4444, 0x2563eb, 0xf59e0b, 0x10b981, 0xa855f7, 0xf472b6, 0xffffff, 0x06b6d4];
+
+        // fanions le long de la piste
+        if (D.flagStep) {
+            for (const s of [-1, 1]) {
+                for (let z = z0 - R(0, D.flagStep); z > z1; z -= D.flagStep) {
+                    if (rng() > dd) continue;
+                    put('flagPole', z, s, 0.9, { tcHex: pick(D.flagColors), ry: s > 0 ? Math.PI : 0 });
+                }
+            }
+        }
+        // lanternes colorées (piste de nuit)
+        if (D.lanternStep) {
+            for (const s of [-1, 1]) {
+                for (let z = z0 - R(0, D.lanternStep); z > z1; z -= D.lanternStep) {
+                    if (rng() > dd) continue;
+                    put('lantern', z, s, 0.5, { tcHex: pick(D.lanternColors) });
+                }
+            }
+        }
+        // conгères sur les bords
+        for (let n = count(D.mounds); n > 0; n--) {
+            const s = rng() < 0.5 ? -1 : 1, z = R(z1, z0), sc = R(1.2, 3.2);
+            put('mound', z, s, R(0.6, 14), { ry: R(0, 6.28), sx: sc * R(1, 1.5), sy: sc * R(0.5, 0.9), sz: sc });
+        }
+        // chalets, bonhommes de neige, bûchers
+        for (let n = count(D.cabin); n > 0; n--) put('cabin', R(z1 + 6, z0 - 6), rng() < 0.5 ? -1 : 1, R(7, 16));
+        for (let n = count(D.snowman); n > 0; n--) {
+            const s = rng() < 0.5 ? -1 : 1, z = R(z1 + 2, z0 - 2);
+            const sc = R(0.9, 1.5);
+            put('snowman', z, s, R(1.4, 4), { sx: sc, sy: sc, sz: sc });
+        }
+        for (let n = count(D.logs); n > 0; n--) put('logs', R(z1 + 2, z0 - 2), rng() < 0.5 ? -1 : 1, R(1.5, 6), { ry: R(0, 3.14) });
+        // pylônes de remontée, cristaux de glace, bouleaux
+        for (let n = count(D.pylon); n > 0; n--) put('pylon', R(z1 + 2, z0 - 2), rng() < 0.5 ? -1 : 1, R(3, 6), { ry: Math.PI / 2 });
+        for (let n = count(D.spire); n > 0; n--) {
+            const sc = R(0.8, 1.7);
+            put('spire', R(z1 + 2, z0 - 2), rng() < 0.5 ? -1 : 1, R(1.5, 18), { ry: R(0, 6.28), sx: sc, sy: sc * R(0.9, 1.4), sz: sc });
+        }
+        for (let n = count(D.birch); n > 0; n--) {
+            const sc = R(0.9, 1.5);
+            put('birch', R(z1, z0), rng() < 0.5 ? -1 : 1, R(1.5, 22), { ry: R(0, 6.28), sx: sc, sy: sc * R(0.9, 1.25), sz: sc, tint: R(0.85, 1.05) });
+        }
+        // spectateurs : petits groupes qui encouragent
+        if (rng() < (D.spectators || 0) * dd) {
+            const s = rng() < 0.5 ? -1 : 1, z = R(z1 + 8, z0 - 8), nP = 3 + Math.floor(rng() * 4);
+            for (let j = 0; j < nP; j++) {
+                const zz = z - j * R(0.9, 1.3), off = R(0.9, 2.2), sc = R(0.9, 1.1);
+                const x = cxAt(zz) + s * (bound + off), y = ty(x, zz);
+                add('spectBody', { x, y, z: zz, ry: s > 0 ? Math.PI : 0, sx: sc, sy: sc, sz: sc, tcHex: pick(JACKETS) });
+                add('spectHead', { x, y: y + 1.74 * sc, z: zz, ry: 0, sx: sc, sy: sc, sz: sc, tcHex: pick(SKIN) });
+            }
+        }
+        // arches de point de passage, tous les 420 unités (≈ 190 m)
+        if (D.archColor != null) {
+            for (let k = Math.max(0, Math.ceil((-z0 - 160) / 420)); ; k++) {
+                const z = -(160 + k * 420);
+                if (z <= z1) break;
+                if (z > z0) continue;
+                if (this.finishZ != null && z < this.finishZ + 60) continue;
+                const cx = cxAt(z), half = terr.halfW + 1.8;
+                add('archBeam', { x: cx, y: ty(cx, z) + 7.4, z, ry: 0, sx: half * 2 + 0.8, sy: 1, sz: 1, tcHex: D.archColor });
+                for (const s of [-1, 1]) {
+                    const x = cx + s * half;
+                    add('archPost', { x, y: ty(x, z), z, ry: 0, sx: 1, sy: 1, sz: 1 });
+                }
+            }
+        }
     }
 
     _obstacleOk(ch, x, z, rad) {
@@ -713,6 +800,182 @@ function buildRampGeometry() {
     return g;
 }
 
+// ---------------------------------------------------------------------------
+// Décor thématique
+// ---------------------------------------------------------------------------
+function sph(r, x = 0, y = 0, z = 0, sx = 1, sy = 1, sz = 1, seg = 10) {
+    const g = new THREE.SphereGeometry(r, seg, Math.max(6, seg - 3));
+    g.scale(sx, sy, sz); g.translate(x, y, z);
+    return g;
+}
+function pyramid(r, h, y, sx = 1, sz = 1) {
+    const g = new THREE.ConeGeometry(r, h, 4);
+    g.rotateY(Math.PI / 4); g.scale(sx, 1, sz); g.translate(0, y + h / 2, 0);
+    return g;
+}
+
+/** Chalet en rondins : la porte est du côté +x (tourné vers la piste par l'orientation de l'instance). */
+function buildCabinGeometry() {
+    const p = [];
+    p.push(part(box(5, 2.4, 4, 0, 1.2, 0), 0x8b5a2b, null, { flat: true }));
+    for (let i = 0; i < 4; i++) p.push(part(box(5.06, 0.07, 4.06, 0, 0.45 + i * 0.6, 0), 0x6b3f1d));
+    p.push(part(pyramid(3.1, 1.9, 2.4, 1.25, 1.0), 0x7f1d1d, null, { flat: true }));
+    p.push(part(pyramid(2.3, 1.0, 3.28, 1.25, 1.0), 0xf8fafc, null, { flat: true }));
+    p.push(part(box(0.6, 1.4, 0.6, -1.4, 3.5, 0.8), 0x6b7280));
+    p.push(part(box(0.7, 0.14, 0.7, -1.4, 4.24, 0.8), 0xf8fafc));
+    p.push(part(box(0.1, 1.5, 0.9, 2.52, 0.75, 0), 0x3b2412));
+    p.push(part(box(0.08, 0.7, 0.7, 2.52, 1.5, 1.2), 0xfde68a));
+    p.push(part(box(0.08, 0.7, 0.7, 2.52, 1.5, -1.2), 0xfde68a));
+    p.push(part(box(0.6, 0.08, 4.2, 2.8, 2.5, 0), 0x5b3a1c));
+    return mergeParts(p);
+}
+
+function buildSnowmanGeometry() {
+    const p = [];
+    const white = 0xf8fafc;
+    p.push(part(sph(0.75, 0, 0.68), white));
+    p.push(part(sph(0.55, 0, 1.68), white));
+    p.push(part(sph(0.4, 0, 2.42), white));
+    const nose = new THREE.ConeGeometry(0.07, 0.5, 6);
+    nose.rotateZ(-Math.PI / 2); nose.translate(0.58, 2.42, 0);
+    p.push(part(nose, 0xf97316));
+    p.push(part(sph(0.05, 0.34, 2.54, 0.12), 0x111827));
+    p.push(part(sph(0.05, 0.34, 2.54, -0.12), 0x111827));
+    for (let i = 0; i < 3; i++) p.push(part(sph(0.06, 0.52, 1.95 - i * 0.28, 0), 0x111827));
+    p.push(part(cyl(0.42, 0.42, 0.14, 10, 2.02), 0xdc2626));
+    p.push(part(cyl(0.36, 0.36, 0.06, 10, 2.76), 0x111827));
+    p.push(part(cyl(0.24, 0.24, 0.34, 10, 2.95), 0x111827));
+    for (const z of [-1, 1]) {
+        const arm = new THREE.CylinderGeometry(0.035, 0.035, 0.9, 5);
+        arm.rotateX(z * 0.9); arm.translate(0, 1.85, z * 0.85);
+        p.push(part(arm, 0x5b3a1c));
+    }
+    return mergeParts(p);
+}
+
+/** Pylône de remontée mécanique (rouge et blanc). */
+function buildPylonGeometry() {
+    const p = [];
+    p.push(part(cyl(0.2, 0.3, 12, 8, 6), 0x64748b));
+    for (let i = 0; i < 3; i++) p.push(part(cyl(0.32, 0.32, 0.8, 8, 1.2 + i * 1.6), i % 2 ? 0xffffff : 0xdc2626));
+    p.push(part(box(0.35, 0.35, 6, 0, 11.7, 0), 0x475569));
+    for (const z of [-2.5, 2.5]) {
+        const wheel = new THREE.CylinderGeometry(0.42, 0.42, 0.3, 10);
+        wheel.rotateX(Math.PI / 2); wheel.translate(0, 12.1, z);
+        p.push(part(wheel, 0x111827));
+    }
+    p.push(part(box(1.6, 0.25, 1.6, 0, 0.12, 0), 0x94a3b8));
+    return mergeParts(p);
+}
+
+/** Cristaux de glace (piste extrême). */
+function buildSpireGeometry() {
+    const p = [];
+    const lo = new THREE.Color(0x38bdf8), hi = new THREE.Color(0xe0f2fe);
+    const crystal = (r, h, rotZ, x, z, ry) => {
+        const g = new THREE.ConeGeometry(r, h, 6);
+        g.translate(0, h / 2, 0); g.rotateY(ry); g.rotateZ(rotZ); g.translate(x, 0.1, z);
+        return part(g, lo, null, {
+            flat: true,
+            colorFn: (px, py) => {
+                const t = Math.min(1, Math.max(0, py / (h * 0.95)));
+                return [lo.r + (hi.r - lo.r) * t, lo.g + (hi.g - lo.g) * t, lo.b + (hi.b - lo.b) * t];
+            }
+        });
+    };
+    p.push(crystal(1.1, 6.5, 0, 0, 0, 0.3));
+    p.push(crystal(0.8, 4.2, -0.32, 1.0, 0.3, 1.1));
+    p.push(crystal(0.6, 3.0, 0.38, -0.9, -0.4, 0.6));
+    p.push(crystal(0.45, 2.2, -0.2, 0.2, 1.0, 0.2));
+    const base = new THREE.DodecahedronGeometry(1.0, 0);
+    base.scale(1.5, 0.45, 1.3); base.translate(0, 0.1, 0);
+    jitterGeometry(base, 0.1, 21);
+    p.push(part(base, 0x64748b, null, { flat: true }));
+    return mergeParts(p);
+}
+
+function buildBirchGeometry() {
+    const p = [];
+    p.push(part(cyl(0.12, 0.18, 3.6, 6, 1.8), 0xe5e7eb));
+    for (const y of [0.5, 1.1, 1.8, 2.5]) p.push(part(cyl(0.185, 0.185, 0.07, 6, y), 0x1f2937));
+    p.push(part(cyl(0.07, 0.09, 1.2, 5, 2.6).rotateZ(0.6).translate(0.35, 0, 0), 0xe5e7eb));
+    p.push(part(sph(1.15, 0, 3.9, 0, 1, 0.85, 1), 0xb7c27a, null, { flat: true }));
+    p.push(part(sph(0.8, 0.6, 3.2, 0.2, 1, 0.8, 1), 0xa8b56b, null, { flat: true }));
+    p.push(part(sph(0.75, -0.55, 3.0, -0.2, 1, 0.8, 1), 0xc3cc8a, null, { flat: true }));
+    p.push(part(sph(0.8, 0, 4.45, 0, 1, 0.45, 1), 0xf8fafc, null, { flat: true }));
+    return mergeParts(p);
+}
+
+function buildLogsGeometry() {
+    const p = [];
+    const log = (x, y, c) => {
+        const g = new THREE.CylinderGeometry(0.22, 0.22, 2.2, 7);
+        g.rotateX(Math.PI / 2); g.translate(x, y, 0);
+        p.push(part(g, c, null, { flat: true }));
+        const cap = new THREE.CylinderGeometry(0.17, 0.17, 0.02, 7);
+        cap.rotateX(Math.PI / 2); cap.translate(x, y, 1.11);
+        p.push(part(cap, 0xe2b97a));
+    };
+    log(-0.44, 0.22, 0x7c4a21); log(0, 0.22, 0x6b3b17); log(0.44, 0.22, 0x7c4a21);
+    log(-0.22, 0.6, 0x6b3b17); log(0.22, 0.6, 0x7c4a21);
+    log(0, 0.98, 0x7c4a21);
+    p.push(part(box(1.3, 0.14, 2.3, 0, 1.2, 0), 0xf8fafc));
+    return mergeParts(p);
+}
+
+/** Fanion : mât blanc + bannière teintée par instance + liseré sombre. */
+function buildFlagGeometry() {
+    const p = [];
+    p.push(part(cyl(0.04, 0.05, 3.4, 6, 1.7), 0xe5e7eb));
+    const ban = new THREE.PlaneGeometry(1.3, 0.8); ban.translate(0.7, 2.85, 0);
+    p.push(part(ban, 0xffffff));
+    const band = new THREE.PlaneGeometry(1.3, 0.14); band.translate(0.7, 2.55, 0.012);
+    p.push(part(band, 0x1f2937));
+    return mergeParts(p);
+}
+
+function buildSpectatorGeometry() {
+    const p = [];
+    p.push(part(cyl(0.27, 0.27, 0.6, 8, 0.3), 0x1e293b));
+    p.push(part(cyl(0.3, 0.27, 0.85, 8, 1.0), 0xffffff));
+    for (const s of [-1, 1]) {
+        const arm = new THREE.BoxGeometry(0.13, 0.65, 0.13);
+        arm.translate(0, 0.3, 0); arm.rotateZ(-s * 2.5); arm.translate(s * 0.28, 1.3, 0);
+        p.push(part(arm, 0xffffff));
+    }
+    return mergeParts(p);
+}
+function buildHeadGeometry() { return mergeParts([part(sph(0.23, 0, 0, 0), 0xffffff)]); }
+
+function buildMoundGeometry() {
+    const g = sph(1, 0, -0.1, 0, 1, 0.6, 1, 12);
+    return mergeParts([part(g, 0xf4f8ff)]);
+}
+
+function buildLanternGeometry() {
+    const p = [];
+    p.push(part(cyl(0.05, 0.06, 3.2, 6, 1.6), 0x1f2937));
+    p.push(part(sph(0.3, 0, 3.4, 0), 0xffffff));
+    p.push(part(sph(0.18, 0, 2.7, 0.22), 0xffffff));
+    return mergeParts(p);
+}
+
+function buildArchPostGeometry() {
+    const p = [];
+    p.push(part(box(0.8, 8, 0.8, 0, 4, 0), 0x334155));
+    for (let i = 0; i < 4; i++) p.push(part(box(0.84, 0.5, 0.84, 0, 0.9 + i * 1.7, 0), 0xf8fafc));
+    p.push(part(box(1.3, 0.25, 1.3, 0, 0.12, 0), 0x94a3b8));
+    return mergeParts(p);
+}
+/** Poutre unitaire (largeur 1) : étirée en x, teintée par instance, avec bandes sombres et lampes. */
+function buildArchBeamGeometry() {
+    const p = [];
+    p.push(part(box(1, 1.3, 0.6, 0, 0, 0), 0xffffff));
+    p.push(part(box(1, 0.14, 0.64, 0, -0.5, 0), 0x111827));
+    p.push(part(box(1, 0.14, 0.64, 0, 0.5, 0), 0x111827));
+    return mergeParts(p);
+}
+
 // ===========================================================================
 // Rendu instancié
 // ===========================================================================
@@ -741,7 +1004,11 @@ class InstancePool {
             const it = list[i];
             composeMatrix(this._m, it.x, it.y, it.z, it.ry || 0, it.sx || 1, it.sy || 1, it.sz || 1, it.shear || 0);
             this.mesh.setMatrixAt(i, this._m);
-            if (this.tint) { const t = it.tint || 1; this._c.setRGB(t, t, t); this.mesh.setColorAt(i, this._c); }
+            if (this.tint) {
+                if (it.tcHex != null) this._c.setHex(it.tcHex);
+                else { const t = it.tint || 1; this._c.setRGB(t, t, t); }
+                this.mesh.setColorAt(i, this._c);
+            }
         }
         this.mesh.count = n;
         this.mesh.instanceMatrix.needsUpdate = true;
@@ -792,6 +1059,21 @@ export class CourseRenderer {
         mk('lamp', buildLampGeometry(), lit, 40, { shadow: true });
         mk('lampHead', buildLampHeadGeometry(), headMat, 40);
         mk('lampGlow', flat(15, 15), glowMat, 40);
+
+        // décor thématique
+        mk('cabin', buildCabinGeometry(), lit, 60, { shadow: true });
+        mk('snowman', buildSnowmanGeometry(), lit, 80, { shadow: true });
+        mk('pylon', buildPylonGeometry(), lit, 60, { shadow: true });
+        mk('spire', buildSpireGeometry(), lit, 160, { shadow: true });
+        mk('birch', buildBirchGeometry(), lit, 400, { shadow: true, tint: true });
+        mk('logs', buildLogsGeometry(), lit, 80, { shadow: true });
+        mk('flagPole', buildFlagGeometry(), glossy, 400, { shadow: false, tint: true });
+        mk('spectBody', buildSpectatorGeometry(), lit, 300, { shadow: true, tint: true });
+        mk('spectHead', buildHeadGeometry(), lit, 300, { shadow: false, tint: true });
+        mk('mound', buildMoundGeometry(), lit, 400, { shadow: false });
+        mk('lantern', buildLanternGeometry(), headMat, 400, { shadow: false, tint: true });
+        mk('archPost', buildArchPostGeometry(), lit, 40, { shadow: true });
+        mk('archBeam', buildArchBeamGeometry(), lit, 20, { shadow: true, tint: true });
 
         // pièces : animées à chaque image
         const coinGeo = buildCoinGeometry();
