@@ -1,5 +1,5 @@
-// Télécharge Three.js r160 (module ES minifié) dans js/vendor/ s'il est absent.
-// Usage : node scripts/setup.mjs
+// Télécharge Three.js r160 (module ES minifié) dans js/vendor/ s'il est absent ou s'il s'agit du fichier relais.
+// Usage : node scripts/setup.mjs [--force]
 import { existsSync, mkdirSync, writeFileSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -7,8 +7,9 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const target = join(root, 'js', 'vendor', 'three.module.min.js');
 const URL_ = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js';
+const force = process.argv.includes('--force');
 
-if (existsSync(target) && statSync(target).size > 100000) {
+if (!force && existsSync(target) && statSync(target).size > 100000) {
     console.log('three.module.min.js déjà présent : rien à faire.');
     process.exit(0);
 }
